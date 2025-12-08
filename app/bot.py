@@ -19,7 +19,7 @@ async def start(message: types.Message) -> None:
     builder = ReplyKeyboardBuilder()
     builder.add(types.KeyboardButton(text='Отправить данные!', web_app=web_app_info))
 
-    await message.answer(text='Привет!', reply_markup=builder.as_markup())
+    await message.answer(text='Привет-медвед!', reply_markup=builder.as_markup())
 
 
 @dp.message(F.content_type == ContentType.WEB_APP_DATA)  # type: ignore[misc]
