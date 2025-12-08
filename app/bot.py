@@ -5,8 +5,7 @@ import logging
 from aiogram import Bot, Dispatcher, F, types
 from aiogram.enums import ContentType, ParseMode
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
-
-from .config import settings
+from config import settings
 
 logging.basicConfig(level=logging.INFO)
 
