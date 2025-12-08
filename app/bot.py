@@ -17,7 +17,7 @@ dp = Dispatcher()
 async def start(message: types.Message) -> None:
     web_app_info = types.WebAppInfo(url=settings.app_url)
     builder = ReplyKeyboardBuilder()
-    builder.add(types.KeyboardButton(text='Отправить данные', web_app=web_app_info))
+    builder.add(types.KeyboardButton(text='Отправить данные!', web_app=web_app_info))
 
     await message.answer(text='Привет!', reply_markup=builder.as_markup())
 
