@@ -8,4 +8,3 @@ build:
 run:
   scriptName: app/bot.py
   persistenceMount: /data
-  containerPort: 80
