@@ -1,4 +1,3 @@
-# mypy: disable-error-code="misc"
 import asyncio
 import logging
 import sys
@@ -10,13 +9,13 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from config import settings
 
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=settings.logger.log_level,
+    format=settings.logger.format,
     stream=sys.stdout,
 )
 logger = logging.getLogger(__name__)
 
-bot = Bot(settings.bot_token)
+bot = Bot(settings.bot.token.get_secret_value())
 dp = Dispatcher()
 router = Router()
 dp.include_router(router)
@@ -24,8 +23,8 @@ dp.include_router(router)
 
 async def set_menu_button(user_id: int) -> None:
     menu_button = MenuButtonWebApp(
-        text='📱 Открыть App',
-        web_app=types.WebAppInfo(url=settings.app_url),
+        text='📱 Открыть Wishlist',
+        web_app=types.WebAppInfo(url=settings.app.url.get_secret_value()),
     )
     await bot.set_chat_menu_button(chat_id=user_id, menu_button=menu_button)
 
@@ -38,8 +37,8 @@ async def cmd_start(message: types.Message) -> None:
     builder = InlineKeyboardBuilder()
     builder.row(
         types.InlineKeyboardButton(
-            text='📱 Открыть Mini App',
-            web_app=types.WebAppInfo(url=settings.app_url),
+            text='📱 Открыть Wishlist',
+            web_app=types.WebAppInfo(url=settings.app.url.get_secret_value()),
         )
     )
 
