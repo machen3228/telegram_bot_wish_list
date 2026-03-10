@@ -1,11 +1,8 @@
-meta:
-  environment: python
-  toolchain:
-    name: pip
-    version: 3.13
-build:
-  requirementsPath: requirements.txt
-run:
-  scriptName: app/bot.py
-  persistenceMount: /data
-  containerPort: 80
+amvera:
+  stage: build
+  build:
+    image: python:3.13
+    commands:
+      - pip install -r requirements.txt
+  run:
+    command: python app/bot.py

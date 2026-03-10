@@ -1,33 +1,56 @@
 import asyncio
-import json
 import logging
+import sys
 
-from aiogram import Bot, Dispatcher, F, types
-from aiogram.enums import ContentType, ParseMode
-from aiogram.utils.keyboard import ReplyKeyboardBuilder
+from aiogram import Bot, Dispatcher, Router, types
+from aiogram.filters import CommandStart
+from aiogram.types import MenuButtonWebApp
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 from config import settings
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=settings.logger.log_level,
+    format=settings.logger.format,
+    stream=sys.stdout,
+)
+logger = logging.getLogger(__name__)
 
-bot = Bot(settings.bot_token)
+bot = Bot(settings.bot.token.get_secret_value())
 dp = Dispatcher()
+router = Router()
+dp.include_router(router)
 
 
-@dp.message()  # type: ignore[misc]
-async def start(message: types.Message) -> None:
-    web_app_info = types.WebAppInfo(url=settings.app_url)
-    builder = ReplyKeyboardBuilder()
-    builder.add(types.KeyboardButton(text='Отправить данные', web_app=web_app_info))
-
-    await message.answer(text='Привет!', reply_markup=builder.as_markup())
-
-
-@dp.message(F.content_type == ContentType.WEB_APP_DATA)  # type: ignore[misc]
-async def parse_data(message: types.Message) -> None:
-    data = json.loads(message.web_app_data.data)
-    await message.answer(
-        f'<b>{data["title"]}</b>\n\n<code>{data["desc"]}</code>\n\n{data["text"]}', parse_mode=ParseMode.HTML
+async def set_menu_button(user_id: int) -> None:
+    menu_button = MenuButtonWebApp(
+        text='📱 Открыть Wishlist',
+        web_app=types.WebAppInfo(url=settings.app.url.get_secret_value()),
     )
+    await bot.set_chat_menu_button(chat_id=user_id, menu_button=menu_button)
+
+
+@router.message(CommandStart())
+async def cmd_start(message: types.Message) -> None:
+    user = message.from_user
+    logger.info('User %s started bot', user.id)
+    await set_menu_button(user.id)
+    builder = InlineKeyboardBuilder()
+    builder.row(
+        types.InlineKeyboardButton(
+            text='📱 Открыть Wishlist',
+            web_app=types.WebAppInfo(url=settings.app.url.get_secret_value()),
+        )
+    )
+
+    await message.answer(
+        '👋 Привет!\n\nНажмите кнопку ниже, чтобы открыть Mini App.\nТакже кнопка доступна в меню бота.',
+        reply_markup=builder.as_markup(),
+    )
+
+
+@router.message()
+async def fallback_handler(message: types.Message) -> None:
+    await message.answer('Для открытия приложения используйте команду /start')
 
 
 async def main() -> None:
@@ -36,4 +59,7 @@ async def main() -> None:
 
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logger.info('Bot stopped')
