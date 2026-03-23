@@ -15,6 +15,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
 bot = Bot(settings.bot.token.get_secret_value())
 dp = Dispatcher()
 router = Router()
